@@ -1,0 +1,15 @@
+.textview{
+	background-color: rgba(100, 0, 1,1.0);
+}
+
+.display-button{
+	background-color: rgb(100, 20, 0);
+	color: #fff;
+	padding: 10px 20px;
+}
+
+.display-button:hover{
+	background-color: rgb(128, 20, 0);
+}
+
+
