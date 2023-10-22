@@ -1,0 +1,63 @@
+import sys
+
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, Pango, Gdk
+import i2c_lcd
+
+  
+class TextViewWindow(Gtk.Window):
+	def __init__(self):
+		Gtk.Window.__init__(self, title="LCD_DISPLAY")
+
+		self.set_default_size(-1, 20)
+
+		self.grid = Gtk.Grid()
+		self.add(self.grid)
+		self.create_textview()
+		
+		self.create_button()
+		self.lcd = i2c_lcd.lcd();
+		
+	def create_textview(self):
+		scrolledwindow = Gtk.ScrolledWindow()
+		scrolledwindow.set_hexpand(True)
+		scrolledwindow.set_vexpand(True)
+		self.grid.attach(scrolledwindow, 0, 1, 2, 1)
+
+		self.textview = Gtk.TextView()
+		self.textbuffer = self.textview.get_buffer()
+		self.textbuffer.set_text("Escriu...")
+		self.textview.get_style_context().add_class("textview")
+		scrolledwindow.add(self.textview)
+
+		self.tag_bold = self.textbuffer.create_tag("bold", weight=Pango.Weight.BOLD)
+		self.tag_italic = self.textbuffer.create_tag("italic", style=Pango.Style.ITALIC)
+		self.tag_underline = self.textbuffer.create_tag("underline", underline=Pango.Underline.SINGLE)
+		self.tag_found = self.textbuffer.create_tag("found", background="yellow")
+
+	def create_button(self):
+		self.button = Gtk.Button(label="Display")
+		self.button.get_style_context().add_class("display-button")
+		self.button.connect("clicked", self.on_button_clicked)
+		self.grid.attach(self.button, 0, 2, 2, 1)
+		
+	def on_button_clicked(self, widget):
+		text = self.textbuffer.get_text(self.textbuffer.get_start_iter(), self.textbuffer.get_end_iter(), True)
+		self.lcd.lcd_clear()
+		self.lcd.lcd_display(text)
+		
+		
+win = TextViewWindow()		
+win.set_default_size(200, 125)
+win.connect("destroy", Gtk.main_quit)
+
+css_provider = Gtk.CssProvider();
+css_provider.load_from_path('display_lcd.css');
+
+context = Gtk.StyleContext()
+context.add_provider_for_screen(Gdk.Screen.get_default(), css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+
+win.show_all()
+Gtk.main()
